@@ -4,14 +4,9 @@ package com.example.web_customer_tracker.dao;
 import com.example.web_customer_tracker.entity.Customer;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.annotations.Source;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ImportResource;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Repository
@@ -24,10 +19,27 @@ public class CustomerDaoImpl implements CustomerDao {
     }
 
     @Override
-    @Transactional
+    public Customer getCustomerById(Long id) {
+        return getSession().get(Customer.class, id);
+    }
+
+    @Override
     public List<Customer> getCustomers() {
         return getSession()
-                .createQuery("from Customer", Customer.class)
+                .createQuery("from Customer order by firstName, lastName", Customer.class)
                 .getResultList();
+    }
+
+    @Override
+    public void saveOrUpdateCustomer(Customer customer) {
+        getSession().saveOrUpdate(customer);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        getSession()
+                .createQuery("delete from Customer where id=?1")
+                .setParameter(1, id)
+                .executeUpdate();
     }
 }
